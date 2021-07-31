@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title_block %} Search - {{ search_text }} . Instagram {% endblock %}
+{% block body_block %}
+
+    {#    {% for users in all_users.all %}#}
+    {#        {% if users != user and not users.is_staff %}#}
+    {#            <div class="row d-flex align-items-center p-3 border">#}
+    {#                <div class="col-2">#}
+    {#                    <div class="search-img">#}
+    {#                        {% if users.user_details.profile_pic %}#}
+    {#                            <img src="{{ users.user_details.profile_pic.url }}" alt="">#}
+    {#                        {% else %}#}
+    {#                            <img src="{% static "images/fox.jpg" %}" alt="">#}
+    {#                        {% endif %}#}
+    {#                    </div>#}
+    {#                </div>#}
+    {#                <div class="col-8">#}
+    {#                    <a href="{% url "profile_app:user" user_name=users.username %}"><b>{{ users.username }}</b></a>#}
+    {#                    <br>#}
+    {#                    <span>{{ users.first_name }}</span>#}
+    {#                </div>#}
+    {#                <div class="col-2">#}
+    {#                    {% if users.pk not in follow_list %}#}
+    {#                        <a href="{% url "profile_app:follow" user_name=users.username %}" class="btn border border-1">Follow</a>#}
+    {#                    {% else %}#}
+    {#                        <a href="{% url "profile_app:follow" user_name=users.username %}" class="btn border border-1">Unfollow</a>#}
+    {#                    {% endif %}#}
+    {#                </div>#}
+    {#            </div>#}
+    {#        {% endif %}#}
+    {#    {% endfor %}#}
+    {% if search_result %}
+        {% for users in page_obj %}
+            {% if users != user %}
+                <div class="row d-flex align-items-center p-3 border bg-white">
+                    <div class="col-2">
+                        <div class="search-img">
+                            {% if users.user_details.profile_pic %}
+                                <img src="{{ users.user_details.profile_pic.url }}" alt="">
+                            {% else %}
+                                <img src="{% static "images/fox.jpg" %}" alt="">
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <a href="{% url "profile_app:user" user_name=users.username %}"><b>{{ users.username }}</b></a>
+                        <br>
+                        <span>{{ users.first_name }}</span>
+                    </div>
+                    <div class="col-2">
+                        {% if users.pk not in follow_list %}
+                            <a href="{% url "profile_app:follow" user_name=users.username %}"
+                               class="btn border border-1">Follow</a>
+                        {% else %}
+                            <a href="{% url "profile_app:follow" user_name=users.username %}"
+                               class="btn border border-1">Unfollow</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <h2 class="alert alert-info">No User Found</h2>
+    {% endif %}
+
+    <div class="pagination d-flex align-items-center justify-content-center my-5">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="btn border border-1 bg-white">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="btn border border-1 bg-white">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="btn border border-1 bg-white">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="btn border border-1 bg-white">last &raquo;</a>
+        {% endif %}
+    </span>
+    </div>
+{% endblock %}

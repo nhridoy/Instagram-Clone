@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block body_block %}
+
+    <h6><b><i>Received Messages:</i></b></h6>
+    <div class="row border-bottom border-1 p-4 bg-white">
+        <div class="col-2">
+            Photo
+        </div>
+        <div class="col-8">
+            Message
+        </div>
+        <div class="col-2">
+            Date
+        </div>
+    </div>
+    {% for message in message_list %}
+        {% if message.sender != user %}
+            <a href="{% url "message_app:message" user_name=message.sender %}">
+                <div class="row inbox border-bottom border-1 p-4 d-flex align-items-center">
+                    <div class="col-2">
+                        <div class="search-img">
+                            {% if message.sender.user_details.profile_pic %}
+                                <img src="{{ message.sender.user_details.profile_pic.url }}" alt="">
+                            {% else %}
+                                <img src="{% static "images/fox.jpg" %}" alt="">
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <b>{{ message.sender.user_details.user }}</b>
+                        <p>{{ message.message_text }}</p>
+                    </div>
+                    <div class="col-2">
+                        <p>{{ message.message_date }}</p>
+                    </div>
+                </div>
+            </a>
+        {% endif %}
+    {% endfor %}
+    <hr>
+    <h6><b><i>Sent Messages:</i></b></h6>
+    <div class="row border-bottom border-1 p-4 bg-white">
+        <div class="col-2">
+            Photo
+        </div>
+        <div class="col-8">
+            Message
+        </div>
+        <div class="col-2">
+            Date
+        </div>
+    </div>
+    {% for message in message_list %}
+        {% if message.sender == user %}
+            <a href="{% url "message_app:message" user_name=message.receiver %}">
+                <div class="row inbox border-bottom border-1 p-4 d-flex align-items-center">
+                    <div class="col-2">
+                        <div class="search-img">
+                            {% if message.receiver.user_details.profile_pic %}
+                                <img src="{{ message.receiver.user_details.profile_pic.url }}" alt="">
+                            {% else %}
+                                <img src="{% static "images/fox.jpg" %}" alt="">
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <b>{{ message.receiver.user_details.user }}</b>
+                        <p>{{ message.message_text }}</p>
+                    </div>
+                    <div class="col-2">
+                        <p>{{ message.message_date }}</p>
+                    </div>
+                </div>
+            </a>
+        {% endif %}
+    {% endfor %}
+
+
+{% endblock %}

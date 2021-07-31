@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load social_share %}
+{% block title_block %} @{{ other_user.username }} Profile . Instagram {% endblock %}
+{% block body_block %}
+
+        <!-- Following List Modal -->
+    <div class="modal fade" id="followinglist" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog  modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Following</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                {% if follow_list2 %}
+                    {% for follow in follow_list2 %}
+                        <div class="row d-flex align-items-center p-3 border-1 border-bottom">
+                            <div class="col-12 d-flex align-items-center">
+                                <div class="follow-img">
+                                    {% if follow.following.user_details.profile_pic %}
+                                    <img src="{{ follow.following.user_details.profile_pic.url }}" alt="">
+                                    {% else %}
+                                    <img src="{% static "images/fox.jpg" %}" alt="">
+                                    {% endif %}
+                                </div>
+                                <span class="ps-2"><b><a href="{% url "profile_app:user" user_name=follow.following.username %}">{{ follow.following.username }}</a></b></span>
+                            </div>
+
+                        </div>
+                    {% endfor %}
+                {% else %}
+                <h3 class="alert alert-primary">No User Found</h3>
+                {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Follower List Modal -->
+    <div class="modal fade" id="followerlist" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog  modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Follower</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% if following_list %}
+                    {% for follow in following_list %}
+                        <div class="row d-flex align-items-center p-3 border-1 border-bottom">
+                            <div class="col-12 d-flex align-items-center">
+                                <div class="follow-img">
+                                    {% if follow.follower.user_details.profile_pic %}
+                                    <img src="{{ follow.follower.user_details.profile_pic.url }}" alt="">
+                                    {% else %}
+                                    <img src="{% static "images/fox.jpg" %}" alt="">
+                                    {% endif %}
+                                </div>
+                                <span class="ps-2"><b><a href="{% url "profile_app:user" user_name=follow.follower.username %}">{{ follow.follower.username }}</a></b></span>
+                            </div>
+
+                        </div>
+                    {% endfor %}
+                {% else %}
+                <h3 class="alert alert-primary">No User Found</h3>
+                {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-page-user row my-5">
+        <div class="col-4 d-flex align-items-center justify-content-center">
+            <div class="profile-page-user-p">
+                <div class="profile-page-user-photo">
+                    {% if other_user.user_details.profile_pic %}
+                        <img src="{{ other_user.user_details.profile_pic.url }}" alt="">
+                    {% else %}
+                        <img src="{% static "images/fox.jpg" %}" alt="">
+                    {% endif %}
+                </div>
+
+            </div>
+
+        </div>
+        <div class="col-8">
+            <div class="section-one d-flex align-items-center">
+                <span class="username">{{ other_user.username }}</span>
+                {% if other_user.pk not in follow_list %}
+                <a href="{% url "profile_app:follow" user_name=other_user.username %}" class="btn border-1 border"><i class="fal fa-users pe-2"></i><b>Follow</b></a>
+                {% else %}
+                <a href="{% url "profile_app:follow" user_name=other_user.username %}" class="btn border-1 border"><i class="fal fa-users-slash pe-2"></i><b>Unfollow</b></a>
+                {% endif %}
+                <a href="{% url "message_app:message" user_name=other_user.username %}" class="btn border-1 border ms-1"
+                   title="Change Password"><i class="fal fa-envelope pe-2"></i><b>Message</b></a>
+            </div>
+            <div class="section-one my-4">
+                <span class="follow"><b>{{ other_user.user_posts.count }}</b> Posts</span>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#followinglist">
+                    <span class="follow"><b>{{ other_user.followers.count }}</b> Following</span>
+                </a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#followerlist">
+                    <span class="follow"><b>{{ other_user.followings.count }}</b> Followers</span>
+                </a>
+            </div>
+            <div class="section-one">
+                <p><b>{{ other_user.first_name }}</b></p>
+                {% if other_user.user_details.dob %}
+                    <p>{{ other_user.user_details.dob }}</p>
+                {% endif %}
+                <p>{{ other_user.user_details.about_user|linebreaks }}</p>
+                <a href="{{ other_user.user_details.website }}"
+                   class=""><b><span>{{ other_user.user_details.website }}</span></b></a>
+                <br>
+                <a href="{{ other_user.user_details.facebook }}"
+                   class=""><b><span>{{ other_user.user_details.facebook }}</span></b></a>
+            </div>
+        </div>
+    </div>
+
+    <nav>
+        <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home"
+                    type="button"
+                    role="tab" aria-controls="nav-home" aria-selected="true"><i class="fal fa-th"></i> <b>POSTS</b>
+            </button>
+        </div>
+    </nav>
+
+    <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+            {% if other_user.user_posts.count >= 1 %}
+                <div class="post-grid mt-4">
+                    {% for post in page_obj %}
+                        <div class="post-item" data-bs-toggle="modal" data-bs-target="#{{ post.slug }}">
+                            <img src="{{ post.post_pic.url }}" alt="">
+                            <div class="overlay d-flex align-items-center justify-content-center">
+                                <i class="fa fa-comment"></i><span>{{ post.post_comment.count }}</span>
+                                <i class="fa fa-heart"></i><span>{{ post.post_like.count }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Post Details Modal -->
+                        <div class="modal fade" id="{{ post.slug }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                             aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Post Details - {{ post }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body row">
+                                        <div class="col-8">
+                                            <div class="img-container">
+                                                <img src="{{ post.post_pic.url }}" alt="">
+                                            </div>
+
+                                        </div>
+                                        <div class="col-4 position-relative">
+                                            <div class="post-head row d-flex align-items-center">
+                                                <div class="dd col-10 d-flex align-items-center">
+                                                    <div class="post-user-img">
+                                                        {% if other_user.user_details.profile_pic %}
+                                                            <img src="{{ other_user.user_details.profile_pic.url }}"
+                                                                 alt="">
+                                                        {% else %}
+                                                            <img src="{% static "images/fox.jpg" %}" alt="">
+                                                        {% endif %}
+                                                    </div>
+                                                    <span><a
+                                                            href="{% url "profile_app:profile" %}">{{ other_user.username }}</a></span>
+                                                </div>
+
+                                                <div class="col-2 dot-menu">
+                                                    <i class="far fa-ellipsis-h"></i>
+                                                    <div class="dot-menu-item">
+                                                        <ul>
+                                                            <li data-bs-toggle="modal"
+                                                                data-bs-target="#share-post-{{ post.slug }}"><a
+                                                                    href="#">Share</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="" style="height: auto">
+                                                <p class="caption mt-1">
+                                                    {{ post.post_caption|linebreaks }}
+                                                </p>
+                                            </div>
+
+                                            <div class="date">
+                                                <p>{{ post.created_date }}</p>
+                                            </div>
+                                            <p>COMMENTS</p>
+                                            <div class="post-comments position-absolute"
+                                                 style="overflow: auto; height: 30%">
+                                                <div class="comments">
+                                                    {% for comment in post.post_comment.all %}
+                                                        <div class="caption mb-3">
+                                                            <a href="{% url "profile_app:user" user_name=comment.user.username %}">{{ comment.user }}</a>
+                                                            <span>{{ comment.comment }}</span>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-foot row">
+                                        <div class="col-8">
+                                            <div class="post-bottom row">
+                                                <div class="liked">
+                                                    <p>Liked By <strong>{{ post.post_like.count }}</strong> People</p>
+                                                </div>
+                                                <div class="post-bottom-icons col-10">
+                                                    {% if post.pk not in liked_post %}
+                                                        <a href="{% url "post_app:like" slug_name=post.slug %}"><i
+                                                                class="fal fa-heart"></i></a>
+                                                    {% else %}
+                                                        <a href="{% url "post_app:like" slug_name=post.slug %}"><i
+                                                                class="fas fa-heart" style="font-weight: bold"></i></a>
+                                                    {% endif %}
+                                                    <label for="post-{{ post.slug }}" style="cursor: pointer"><i
+                                                            class="fal fa-comment"></i></label>
+                                                    <i class="fal fa-paper-plane" data-bs-toggle="modal"
+                                                       data-bs-target="#share-post-{{ post.slug }}"
+                                                       style="cursor: pointer"></i>
+                                                </div>
+                                                <div class="post-bottom-icon col-2 d-flex justify-content-end">
+                                                    {% if post.pk not in saved_post %}
+                                                        <a href="{% url "post_app:save" slug_name=post.slug %}"
+                                                           class="float-end"><i class="fal fa-bookmark"></i></a>
+                                                    {% else %}
+                                                        <a href="{% url "post_app:save" slug_name=post.slug %}"
+                                                           class="float-end"><i class="fal fa-bookmark"
+                                                                                style="font-weight: bold"></i></a>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="post-comment">
+                                                <form method="POST">
+                                                    <input id="post-{{ post.slug }}" type="text" class="text-comment"
+                                                           style="width: auto"
+                                                           placeholder="Add a Comment..." name="user_comment" required>
+                                                    <input type="hidden" value="{{ post.slug }}" name="current_post">
+                                                    {% csrf_token %}
+                                                    <input type="submit" value="Post" class="btn" name="comment_btn">
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Share Post Modal -->
+                        <div class="modal fade" id="share-post-{{ post.slug }}" tabindex="-1"
+                             aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Share</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="share">
+                                            {% with name='http://127.0.0.1:8000/post/'|add:post.slug %}
+                                                {% post_to_facebook name '<i class="fab fa-facebook-square"></i>' %}
+                                                {% post_to_twitter "New Post By: {{post.other_user.username }}. Check it out!" name '<i class="fab fa-twitter-square"></i>' %}
+                                                {% post_to_whatsapp name '<i class="fab fa-whatsapp-square"></i>' %}
+                                            {% endwith %}
+                                        </div>
+                                    </div>
+                                    <div class="modal-body">
+                                        <input id="myPostInput" type="text"
+                                               value="http://127.0.0.1:8000/post/{{ post.slug }}"
+                                               class="text-input"
+                                               style="width: 90%">
+                                        <i onclick="myFunction()" class="fal fa-copy btn btn-light border border-1"
+                                           style="padding: 11px"
+                                           title="Copy to Clipboard"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% endfor %}
+                </div>
+                <!-- Pagination -->
+                <div class="pagination d-flex align-items-center justify-content-center my-5">
+                    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="btn border border-1 bg-white">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="btn border border-1 bg-white">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="btn border border-1 bg-white">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="btn border border-1 bg-white">last &raquo;</a>
+        {% endif %}
+    </span>
+                </div>
+            {% else %}
+                <div class="text-center mt-5">
+                    <p>No Post Yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+{% block script_block %}
+    <script>
+        let imagefield = document.getElementById('id_profile_pic');
+        let imageviewer = document.querySelector('.img-viewer');
+        let imageform = document.querySelector('.img-form');
+        imagefield.onchange = function (e) {
+            const [file] = imagefield.files
+            if (file) {
+                imageviewer.src = URL.createObjectURL(file);
+                imageform.style.width = '200px'
+                imageform.style.height = '200px'
+            }
+        }
+    </script>
+    <script>
+        let dot = document.querySelectorAll('.dot-menu');
+        {#let dot_menu = document.querySelectorAll('.dot-menu-item');#}
+        for (let i = 0; i < dot.length; i++) {
+            dot[i].addEventListener('click', (e) => {
+                if (e.target.nextElementSibling == null) {
+                    e.target.childNodes[3].classList.toggle('dot-menu-item-visible');
+                } else {
+                    e.target.nextElementSibling.classList.toggle('dot-menu-item-visible');
+
+                }
+            })
+        }
+
+
+    </script>
+
+{% endblock %}

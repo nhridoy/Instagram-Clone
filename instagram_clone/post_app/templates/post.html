@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load social_share %}
+{% block title_block %} @{{ posts.user.username }} Post . Instagram {% endblock %}
+{% block body_block %}
+    <!-- Post Details -->
+    <div class="" id="{{ posts.slug }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Post Details - {{ posts }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body row">
+                    <div class="col-8">
+                        <div class="img-container">
+                            <img src="{{ posts.post_pic.url }}" alt="">
+                        </div>
+
+                    </div>
+                    <div class="col-4 position-relative">
+                        <div class="post-head row d-flex align-items-center">
+                            <div class="dd col-10 d-flex align-items-center">
+                                <div class="post-user-img">
+                                    {% if posts.user.user_details.profile_pic %}
+                                        <img src="{{ posts.user.user_details.profile_pic.url }}" alt="">
+                                    {% else %}
+                                        <img src="{% static "images/fox.jpg" %}" alt="">
+                                    {% endif %}
+                                </div>
+                                <span><a
+                                        href="{% url "profile_app:user" user_name=posts.user.username %}">{{ posts.user.username }}</a></span>
+                            </div>
+
+                            <div class="col-2 dot-menu">
+
+                            </div>
+                        </div>
+                        <div class="" style="height: auto">
+                            <p class="caption mt-1">
+                                {{ posts.post_caption|linebreaks }}
+                            </p>
+                        </div>
+
+                        <div class="date">
+                            <p>{{ posts.created_date }}</p>
+                        </div>
+                        <p>COMMENTS</p>
+                        <div class="post-comments position-absolute"
+                             style="overflow: auto; height: 30%">
+                            <div class="comments">
+
+                                <div class="caption">
+                                    {% for comment in posts.post_comment.all %}
+                                        <div class="caption mb-3">
+                                            <a href="{% url "profile_app:user" user_name=comment.user.username %}">{{ comment.user }}</a>
+                                            <span>{{ comment.comment }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-foot row">
+                    <div class="col-8">
+                        <div class="post-bottom row">
+                            <div class="liked">
+                                <p>Liked By <strong>{{ posts.post_like.count }}</strong> People</p>
+                            </div>
+                            <div class="post-bottom-icons col-10">
+                                {% if posts.pk not in liked_post %}
+                                    <a href="{% url "post_app:like" slug_name=posts.slug %}"><i
+                                            class="fal fa-heart"></i></a>
+                                {% else %}
+                                    <a href="{% url "post_app:like" slug_name=posts.slug %}"><i
+                                            class="fas fa-heart" style="font-weight: bold"></i></a>
+                                {% endif %}
+                                <label for="post-{{ posts.slug }}" style="cursor: pointer"><i
+                                        class="fal fa-comment"></i></label>
+                                <i class="fal fa-paper-plane" data-bs-toggle="modal"
+                                   data-bs-target="#share-post-{{ posts.slug }}" style="cursor: pointer"></i>
+                            </div>
+                            <div class="post-bottom-icon col-2 d-flex justify-content-end">
+                                {% if posts.pk not in saved_post %}
+                                    <a href="{% url "post_app:save" slug_name=posts.slug %}" class="float-end"><i
+                                            class="fal fa-bookmark"></i></a>
+                                {% else %}
+                                    <a href="{% url "post_app:save" slug_name=posts.slug %}" class="float-end"><i
+                                            class="fal fa-bookmark" style="font-weight: bold"></i></a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="post-comment">
+                            <form method="POST">
+                                <input id="post-{{ posts.slug }}" type="text" class="text-comment"
+                                       style="width: auto"
+                                       placeholder="Add a Comment..." name="user_comment">
+                                {% csrf_token %}
+                                <input type="submit" value="Post" class="btn">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Post Modal -->
+    <div class="modal fade" id="share-post-{{ posts.slug }}" tabindex="-1"
+         aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Share</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="share">
+                        {% post_to_facebook object_or_url '<i class="fab fa-facebook-square"></i>' %}
+                        {% post_to_twitter "New Post By: {{posts.user.username }}. Check it out!" object_or_url '<i class="fab fa-twitter-square"></i>' %}
+                        {% post_to_whatsapp object_or_url '<i class="fab fa-whatsapp-square"></i>' %}
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <input id="myInput" type="text" value="{{ request.build_absolute_uri }}" class="text-input"
+                           style="width: 90%">
+                    <i onclick="myFunction()" class="fal fa-copy btn btn-light border border-1" style="padding: 11px"
+                       title="Copy to Clipboard"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script_block %}
+    <script>
+        function myFunction() {
+            /* Get the text field */
+            var copyText = document.getElementById("myInput");
+
+            /* Select the text field */
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+            /* Copy the text inside the text field */
+            document.execCommand("copy");
+
+            /* Alert the copied text */
+            {#alert("Copied the text: " + copyText.value);#}
+        }
+    </script>
+{% endblock %}

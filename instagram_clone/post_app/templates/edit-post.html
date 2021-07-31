@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title_block %} @{{ user.username }} Edit Post . Instagram {% endblock %}
+{% block body_block %}
+    {% if user.username == current_post.user.username %}
+        <form method="POST" enctype="multipart/form-data">
+            {{ form|crispy }}
+            {% csrf_token %}
+            <input type="submit" value="Edit" class="btn btn-dark mt-3">
+        </form>
+    {% else %}
+        <h4 class="alert alert-danger">You do not Have Permission to View This Page</h4>
+    {% endif %}
+{% endblock %}
