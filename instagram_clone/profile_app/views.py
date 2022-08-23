@@ -34,8 +34,7 @@ def loginview(request):
     if request.method == 'POST':
         form = LoginForm(data=request.POST)
         username, password = request.POST.get('username'), request.POST.get('password')
-        user = authenticate(username=username, password=password)
-        if user:
+        if user := authenticate(username=username, password=password):
             if user.is_active:
                 login(request, user)
                 return HttpResponseRedirect(reverse('post_app:index'))
@@ -167,18 +166,16 @@ def OtherUserProfileView(request, user_name):
 
     if other_user == request.user:
         return HttpResponseRedirect(reverse('profile_app:profile'))
-    else:
-        if request.method == 'POST':
-            if 'comment_btn' in request.POST:
-                user_comment = request.POST.get('user_comment')
-                current_post_slug = request.POST.get('current_post')
-                current_post = Posts.objects.get(slug=current_post_slug)
-                comment_model = Comments()
-                comment_model.user = request.user
-                comment_model.post = current_post
-                comment_model.comment = user_comment
-                comment_model.save()
-                return redirect(request.META['HTTP_REFERER'])
+    if request.method == 'POST' and 'comment_btn' in request.POST:
+        user_comment = request.POST.get('user_comment')
+        current_post_slug = request.POST.get('current_post')
+        current_post = Posts.objects.get(slug=current_post_slug)
+        comment_model = Comments()
+        comment_model.user = request.user
+        comment_model.post = current_post
+        comment_model.comment = user_comment
+        comment_model.save()
+        return redirect(request.META['HTTP_REFERER'])
 
     context = {
         'liked_post': liked_post.values_list('post', flat=True),
@@ -196,15 +193,14 @@ def OtherUserProfileView(request, user_name):
 def userfollowview(request, user_name):
     current_user = request.user
     followed_user = User.objects.get(username=user_name)
-    is_follow = Follow.objects.filter(follower=current_user, following=followed_user)
-
-    if not is_follow:
+    if is_follow := Follow.objects.filter(
+        follower=current_user, following=followed_user
+    ):
+        is_follow.delete()
+    else:
         follow = Follow(follower=current_user, following=followed_user)
         follow.save()
-        return redirect(request.META['HTTP_REFERER'])
-    else:
-        is_follow.delete()
-        return redirect(request.META['HTTP_REFERER'])
+    return redirect(request.META['HTTP_REFERER'])
 
 
 @login_required

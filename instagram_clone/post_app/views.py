@@ -46,17 +46,16 @@ def IndexView(request):
     paginator = Paginator(posts, 4)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    if request.method == 'POST':
-        if 'comment_btn' in request.POST:
-            user_comment = request.POST.get('user_comment')
-            current_post_slug = request.POST.get('current_post')
-            current_post = Posts.objects.get(slug=current_post_slug)
-            comment_model = Comments()
-            comment_model.user = request.user
-            comment_model.post = current_post
-            comment_model.comment = user_comment
-            comment_model.save()
-            return redirect(request.META['HTTP_REFERER'])
+    if request.method == 'POST' and 'comment_btn' in request.POST:
+        user_comment = request.POST.get('user_comment')
+        current_post_slug = request.POST.get('current_post')
+        current_post = Posts.objects.get(slug=current_post_slug)
+        comment_model = Comments()
+        comment_model.user = request.user
+        comment_model.post = current_post
+        comment_model.comment = user_comment
+        comment_model.save()
+        return redirect(request.META['HTTP_REFERER'])
     context = {
         'title': 'Home . Instagram',
         'all_user': all_users,
@@ -86,27 +85,25 @@ def postsaveview(request):
 def likeview(request, slug_name):
     current_user = request.user
     current_post = Posts.objects.get(slug=slug_name)
-    is_liked = Likes.objects.filter(post=current_post, user=current_user)
-    if not is_liked:
+    if is_liked := Likes.objects.filter(post=current_post, user=current_user):
+        is_liked.delete()
+    else:
         like_post = Likes(user=current_user, post=current_post)
         like_post.save()
-        return redirect(request.META['HTTP_REFERER'])
-    else:
-        is_liked.delete()
-        return redirect(request.META['HTTP_REFERER'])
+    return redirect(request.META['HTTP_REFERER'])
 
 @login_required
 def saveview(request, slug_name):
     current_user = request.user
     current_post = Posts.objects.get(slug=slug_name)
-    is_save = SavedPost.objects.filter(post=current_post, user=current_user)
-    if not is_save:
+    if is_save := SavedPost.objects.filter(
+        post=current_post, user=current_user
+    ):
+        is_save.delete()
+    else:
         save_post = SavedPost(user=current_user, post=current_post)
         save_post.save()
-        return redirect(request.META['HTTP_REFERER'])
-    else:
-        is_save.delete()
-        return redirect(request.META['HTTP_REFERER'])
+    return redirect(request.META['HTTP_REFERER'])
 
 # class EditPostView(LoginRequiredMixin, UpdateView):
 #     # form_class = PostForm
